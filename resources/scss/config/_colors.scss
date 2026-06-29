@@ -1,0 +1,25 @@
+/**
+ * Базовые цвета
+ *
+ * Из каждого базового цвета генерируются
+ * светлый и тёмный оттенок, а также
+ * контрастный цвет для контента
+ */
+$accent: #3cacf0;
+$gray: #eeeeee;
+$light-blue: #d3e7ff;
+$dark-gray: #999999;
+$darkest: #222233;
+$light-orange: #fb923c;
+
+$content-dark: #333333;
+$content-light: #f7f7f7;
+
+$white: #ffffff;
+$black: #000000;
+$blue: #3b82f6;
+$violet: #8b5cf6;
+
+// Семантические цвета
+$success: #33CC00;
+$danger: #DD0000;

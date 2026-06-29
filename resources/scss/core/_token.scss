@@ -1,0 +1,187 @@
+@forward "@config/scale";
+@forward "@config/colors";
+@forward "@config/fonts";
+@forward "@config/weight";
+
+@use "@core/scale" as scale-functions;
+@use "@core/colors" as colors-functions;
+@use "@core/weight" as weight-functions;
+@use "@core/font-family" as font-family-functions;
+@use "@core/viewports" as viewports-functions;
+
+@function scale($values...) {
+	@return scale-functions.scale($values...);
+}
+
+@function color-base($color, $alpha: 1) {
+	@return colors-functions.base($color, $alpha);
+}
+
+@function color-light-10($color, $alpha: 1) {
+	@return colors-functions.light-10($color, $alpha);
+}
+
+@function color-light-20($color, $alpha: 1) {
+	@return colors-functions.light-20($color, $alpha);
+}
+
+@function color-light-30($color, $alpha: 1) {
+	@return colors-functions.light-30($color, $alpha);
+}
+
+@function color-light-40($color, $alpha: 1) {
+	@return colors-functions.light-40($color, $alpha);
+}
+
+@function color-light-50($color, $alpha: 1) {
+	@return colors-functions.light-50($color, $alpha);
+}
+
+@function color-dark-10($color, $alpha: 1) {
+	@return colors-functions.dark-10($color, $alpha);
+}
+
+@function color-dark-20($color, $alpha: 1) {
+	@return colors-functions.dark-20($color, $alpha);
+}
+
+@function color-dark-30($color, $alpha: 1) {
+	@return colors-functions.dark-30($color, $alpha);
+}
+
+@function color-dark-40($color, $alpha: 1) {
+	@return colors-functions.dark-40($color, $alpha);
+}
+
+@function color-dark-50($color, $alpha: 1) {
+	@return colors-functions.dark-50($color, $alpha);
+}
+
+@function color-content($color, $alpha: 1) {
+	@return colors-functions.content($color, $alpha);
+}
+
+@function font-weight($weight) {
+	@return weight-functions.font-weight($weight);
+}
+
+@function font-family($font-family) {
+	@return font-family-functions.font-family($font-family);
+}
+
+// Raw функции - возвращают цветовые значения вместо CSS переменных
+@function color-base-value($color, $alpha: 1) {
+	@return colors-functions.base-value($color, $alpha);
+}
+
+@function color-light-10-value($color, $alpha: 1) {
+	@return colors-functions.light-10-value($color, $alpha);
+}
+
+@function color-light-20-value($color, $alpha: 1) {
+	@return colors-functions.light-20-value($color, $alpha);
+}
+
+@function color-light-30-value($color, $alpha: 1) {
+	@return colors-functions.light-30-value($color, $alpha);
+}
+
+@function color-light-40-value($color, $alpha: 1) {
+	@return colors-functions.light-40-value($color, $alpha);
+}
+
+@function color-light-50-value($color, $alpha: 1) {
+	@return colors-functions.light-50-value($color, $alpha);
+}
+
+@function color-dark-10-value($color, $alpha: 1) {
+	@return colors-functions.dark-10-value($color, $alpha);
+}
+
+@function color-dark-20-value($color, $alpha: 1) {
+	@return colors-functions.dark-20-value($color, $alpha);
+}
+
+@function color-dark-30-value($color, $alpha: 1) {
+	@return colors-functions.dark-30-value($color, $alpha);
+}
+
+@function color-dark-40-value($color, $alpha: 1) {
+	@return colors-functions.dark-40-value($color, $alpha);
+}
+
+@function color-dark-50-value($color, $alpha: 1) {
+	@return colors-functions.dark-50-value($color, $alpha);
+}
+
+@function color-content-value($color, $alpha: 1) {
+	@return colors-functions.content-value($color, $alpha);
+}
+
+@function scale-value($values...) {
+	@return scale-functions.scale-value($values...);
+}
+
+@function color-mix($base-color, $amount-base-color: 80%, $mixed-color, $amount-mixed-color: 20%) {
+	@return colors-functions.mix($base-color, $amount-base-color, $mixed-color, $amount-mixed-color);
+}
+
+@function color-mix-value($base-color, $amount-base-color: 80%, $mixed-color, $amount-mixed-color: 20%) {
+	@return colors-functions.mix-value($base-color, $amount-base-color, $mixed-color, $amount-mixed-color);
+}
+
+@mixin phone {
+	@include viewports-functions.phone {
+		@content;
+	}
+}
+@mixin phone-portrait {
+	@include viewports-functions.phone-portrait {
+		@content;
+	}
+}
+@mixin phone-landscape {
+	@include viewports-functions.phone-landscape {
+		@content;
+	}
+}
+@mixin tablet {
+	@include viewports-functions.tablet {
+		@content;
+	}
+}
+@mixin tablet-portrait {
+	@include viewports-functions.tablet-portrait {
+		@content;
+	}
+}
+@mixin tablet-landscape {
+	@include viewports-functions.tablet-landscape {
+		@content;
+	}
+}
+@mixin mobile {
+	@include viewports-functions.mobile {
+		@content;
+	}
+}
+@mixin laptop {
+	@include viewports-functions.laptop {
+		@content;
+	}
+}
+@mixin wide {
+	@include viewports-functions.wide {
+		@content;
+	}
+}
+@mixin desktop {
+	@include viewports-functions.desktop {
+		@content;
+	}
+}
+@mixin no-phone {
+	@include viewports-functions.no-phone {
+		@content;
+	}
+}

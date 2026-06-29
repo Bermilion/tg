@@ -1,0 +1,102 @@
+@use "sass:meta";
+@use "sass:map";
+@use "sass:string";
+
+@use "@utils/css-variables" as css-vars;
+
+@forward "@config/fonts";
+
+@use "@config/fonts" as config;
+
+// Вся карта доступных переменных конфига
+$_base-font-family: meta.module-variables(config);
+
+$_font-family-reversed: map.deep-merge((), ());
+@each $name, $value in $_base-font-family {
+  $_font-family-reversed: map.set($_font-family-reversed, $value, $name);
+}
+
+$variables-map-font-family: ();
+
+/**
+ * Преобразует значения font-family в CSS-переменные.
+ *
+ * Принимает значение (ключ или строковое значение) и возвращает
+ * соответствующую CSS-переменную (--font-family-name).
+ *
+ * @param $font-family - Значение для преобразования. Может быть:
+ *   - Ключ из карты $fonts
+ *
+ * @return {String} - CSS-переменная (например: 'var(--font-family-base)')
+ *
+ * @example
+ * font-family('base') -> var(--font-family-base)
+ */
+@function font-family($font-family) {
+  $_name: _get-name-font-family($font-family);
+  $_value: map.get($_base-font-family, $_name);
+  $_: _set-in-variables-map-font-family($_name, $_value);
+  $_css-var: _get-css-var-font-family($_name);
+  @return $_css-var;
+}
+
+/**
+ * Определяет имя переменной font-family по её значению.
+ *
+ * Анализирует переданное значение и возвращает соответствующее имя переменной
+ * из карты $fonts. Поддерживает как ключи, так и строковые значения.
+ *
+ * @param $font-family - Значение для поиска. Может быть:
+ *   - Ключ (например: 'base', 'monospace')
+ *   - Строковое значение (например: '"Geologica Variable", sans-serif')
+ *
+ * @return {String|Null} - Имя переменной (например: 'base') или null,
+ *                        если значение не найдено
+ *
+ * @warn - Выдаёт предупреждение, если значение не найдено в карте
+ */
+@function _get-name-font-family($font-family) {
+  $_name: map.get($_base-font-family, $font-family);
+
+  @if $_name == null {
+    $_name: map.get($_font-family-reversed, $font-family);
+  }
+
+  @if $_name == null {
+    @warn "Значение '#{$font-family}' не найдено в карте $fonts";
+  }
+
+  @return $_name;
+}
+
+/**
+ * Регистрирует переменную font-family в глобальной карте переменных.
+ *
+ * Добавляет пару имя-значение в глобальную карту $variables-map-font-family,
+ * если такое имя ещё не зарегистрировано.
+ *
+ * @param $name - Имя переменной (например: 'base')
+ * @param $value - Значение переменной (например: '"Geologica Variable", sans-serif')
+ *
+ * @return {Map} - Обновлённая глобальная карта $variables-map-font-family
+ */
+@function _set-in-variables-map-font-family($name, $value) {
+  $_existing: map.get($variables-map-font-family, $name);
+
+  @if $_existing == null {
+    $variables-map-font-family: map.set($variables-map-font-family, $name, $value) !global;
+  }
+
+  @return $name;
+}
+
+/**
+ * Формирует CSS-переменную из имени переменной font-family.
+ *
+ * @param $name - Имя переменной (например: 'base')
+ *
+ * @return {String} - CSS-переменная (например: 'var(--font-family-base)')
+ */
+@function _get-css-var-font-family($name) {
+  @return css-vars.generate-css-var($name);
+}

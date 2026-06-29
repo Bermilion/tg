@@ -1,0 +1,12 @@
+@use "@mixins/generate-css-variables" as var;
+@use "@core/colors" as colors;
+@use "@core/scale" as scale;
+@use "@core/weight" as weight;
+@use "@core/font-family" as font-family;
+
+:root {
+	@include var.generate-css-variables(scale.$variables-map-scales);
+	@include var.generate-css-variables(weight.$variables-map-weight);
+	@include var.generate-css-variables(colors.$variables-map-colors, 'color');
+	@include var.generate-css-variables(font-family.$variables-map-font-family);
+}

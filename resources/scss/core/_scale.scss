@@ -1,0 +1,410 @@
+@use "sass:meta";
+@use "sass:math";
+@use "sass:map";
+@use "sass:string";
+@use "sass:list";
+
+@use "@utils/css-variables" as css-vars;
+
+@forward "@config/scale";
+
+@use "@config/scale" as config;
+
+/**
+ * @section Масштабирование (Scale)
+ * @parent scss-core
+ *
+ * Модуль для работы с единой системой масштабирования отступов и размеров.
+ * Использует базовую единицу 8px для создания консистентной типографики и spacing-системы.
+ *
+ * @example
+ * @use "@core/scale";
+ *
+ * .element {
+ *   padding: scale(16, 24);
+ *   font-size: scale(16);
+ *   margin-top: scale(8);
+ * }
+ *
+ * @example
+ * // Получение числовых значений
+ * $spacing: scale-value(24); // 24px
+ *
+ * @example
+ * // Проверка кратности
+ * @if is-multiple(16) {
+ *   // true
+ * }
+ */
+
+/**
+ * @section Внутренняя структура
+ * @access private
+ *
+ * $_base-scales - Карта переменных масштаба из конфигурации
+ * $_base-scale-unit - Базовая единица (8px)
+ * $_base-scales-reversed - Карта "значение -> имя" (8px: 'scale-8')
+ * $_base-scales-reversed-numbers - Карта "числовой суффикс -> имя" (8: 'scale-8')
+ * $variables-map-scales - Глобальная карта зарегистрированных переменных
+ */
+
+// Вся карта доступных переменных конфига
+$_base-scales: meta.module-variables(config);
+
+// Базовая величина 8px = 1rem
+$_base-scale-unit: 8;
+
+/**
+ * Обратная карта масштаба: значение -> имя переменной.
+ *
+ * Создаёт инвертированную версию $_base-scales, где ключами являются
+ * значения (в пикселях), а значениями - имена переменных масштаба.
+ * Используется для поиска имени переменной по её значению.
+ *
+ * Пример структуры:
+ * $_base-scales-reversed: (
+ *   8px: 'scale-8',
+ *   16px: 'scale-16',
+ *   24px: 'scale-24'
+ * )
+ */
+$_base-scales-reversed: map.deep-merge((), ());
+@each $name, $value in $_base-scales {
+	$_base-scales-reversed: map.set($_base-scales-reversed, $value, $name);
+}
+
+/**
+ * Обратная карта масштаба: числовой суффикс -> имя переменной.
+ *
+ * Создаёт карту, где ключами являются числовые суффиксы имён переменных
+ * (число после 'scale-'), а значениями - полные имена переменных.
+ * Используется для поиска имени переменной по числовому значению без единиц.
+ *
+ * Пример структуры:
+ * $_base-scales-reversed-numbers: (
+ *   8: 'scale-8',
+ *   16: 'scale-16',
+ *   24: 'scale-24'
+ * )
+ */
+$_base-scales-reversed-numbers: map.deep-merge((), ());
+@each $name, $value in $_base-scales {
+	$_postfix-key: string.slice($name, 7);
+	$_base-scales-reversed-numbers: map.set($_base-scales-reversed-numbers, $_postfix-key, $name);
+}
+
+$variables-map-scales: ();
+
+/**
+ * Возвращает сообщение для предупреждения о недопустимых единицах измерения rem.
+ *
+ * @param $function-name - Имя функции, которая вызвала предупреждение
+ *
+ * @return {String} - Сообщение предупреждения
+ *
+ * @access private
+ * @example
+ * _get-rem-warning-message('scale') -> "scale() не принимает значения с единицами измерения rem. Используйте только голые числа без единиц измерения."
+ */
+@function _get-rem-warning-message($function-name) {
+	@return "#{$function-name}() не принимает значения с единицами измерения rem. Используйте только голые числа без единиц измерения.";
+}
+
+/**
+ * Возвращает сообщение для предупреждения о недопустимых единицах измерения px.
+ *
+ * @param $function-name - Имя функции, которая вызвала предупреждение
+ *
+ * @return {String} - Сообщение предупреждения
+ *
+ * @access private
+ * @example
+ * _get-px-warning-message('scale-value') -> "scale-value() не принимает значения с единицами измерения px. Используйте только голые числа без единиц измерения."
+ */
+@function _get-px-warning-message($function-name) {
+	@return "#{$function-name}() не принимает значения с единицами измерения px. Используйте только голые числа без единиц измерения.";
+}
+
+/**
+ * Возвращает сообщение для общего предупреждения о недопустимых единицах измерения.
+ *
+ * @param $function-name - Имя функции, которая вызвала предупреждение
+ *
+ * @return {String} - Сообщение предупреждения
+ *
+ * @access private
+ * @example
+ * _get-invalid-units-warning-message('scale') -> "scale() принимает только голые числа без единиц измерения (без px, rem и т.д.)"
+ */
+@function _get-invalid-units-warning-message($function-name) {
+	@return "#{$function-name}() принимает только голые числа без единиц измерения (без px, rem и т.д.)";
+}
+
+/**
+ * Преобразует значения масштаба в CSS-переменные.
+ *
+ * Принимает одно или несколько значений (только числа без единиц измерения)
+ * и возвращает соответствующие CSS-переменные (--scale-name). Значения ищутся
+ * в конфигурации масштаба (@config/scale.scss).
+ *
+ * @param $values... - Список значений для преобразования. Только числа, кратные 8:
+ *   - Одиночное число (например: 8, 16, 24)
+ *   - Несколько чисел через запятую (например: 8, 16, 24)
+ *
+ * @return {String} - Строка с CSS-переменными через пробел
+ *
+ * @warn Выдаёт предупреждение, если значение содержит единицы измерения (px, rem)
+ *
+ * @example
+ * scale(8, 16) -> var(--scale-8) var(--scale-16)
+ * @example
+ * $spacing: scale(24) -> var(--scale-24)
+ * @example
+ * padding: scale(8, 16, 24) -> var(--scale-8) var(--scale-16) var(--scale-24)
+ */
+@function scale($values...) {
+	$result: ();
+	@each $value in $values {
+		@if math.is-unitless($value) {
+			$_name: _get-name-scale($value);
+			$_value: map.get($_base-scales, $_name);
+			$_: _set-in-variables-map($_name, $_value);
+			$_css-var: _get-css-var-scale($_name);
+			$result: list.append($result, $_css-var, space);
+		} @else {
+			@if string.index("#{$value}", 'rem') != null {
+				@warn _get-rem-warning-message('scale');
+			} @else if string.index("#{$value}", 'px') != null {
+				@warn _get-px-warning-message('scale');
+			} @else {
+				@warn _get-invalid-units-warning-message('scale');
+			}
+		}
+	}
+
+	@if list.length($result) == 0 {
+		@return "";
+	}
+	@return list.join((), $result);
+}
+
+/**
+ * Преобразует значения масштаба в числовые значения.
+ *
+ * Принимает одно или несколько значений (только числа без единиц измерения)
+ * и возвращает соответствующие числовые значения из конфигурации масштаба
+ * (@config/scale.scss). В отличие от scale(), не генерирует CSS-переменные,
+ * а возвращает значения в px с единицами измерения.
+ *
+ * @param $values... - Список значений для преобразования. Только числа, кратные 8:
+ *   - Одиночное число (например: 8, 16, 24)
+ *   - Несколько чисел через запятую (например: 8, 16, 24)
+ *
+ * @return {String} - Строка с числовыми значениями в px через пробел
+ *
+ * @warn Выдаёт предупреждение, если значение содержит единицы измерения (px, rem)
+ *
+ * @example
+ * scale-value(8, 16) -> 8px 16px
+ * @example
+ * $spacing: scale-value(24) -> 24px
+ * @example
+ * margin: scale-value(8, 16, 24) -> 8px 16px 24px
+ */
+@function scale-value($values...) {
+	$result: ();
+	@each $value in $values {
+		@if math.is-unitless($value) {
+			$_name: _get-name-scale($value);
+			$_value: map.get($_base-scales, $_name);
+			$result: list.append($result, $_value, space);
+		} @else {
+			@if string.index("#{$value}", 'rem') != null {
+				@warn _get-rem-warning-message('scale-value');
+			} @else if string.index("#{$value}", 'px') != null {
+				@warn _get-px-warning-message('scale-value');
+			} @else {
+				@warn _get-invalid-units-warning-message('scale-value');
+			}
+		}
+	}
+	@if list.length($result) == 0 {
+		@return "";
+	}
+	@return list.join((), $result);
+}
+
+/**
+ * Определяет имя переменной масштаба по её значению.
+ *
+ * Анализирует переданное значение и возвращает соответствующее имя переменной
+ * из конфигурации масштаба. Принимает только голые числа без единиц измерения.
+ * Если значение не найдено в конфигурации, но кратно 8, функция динамически
+ * добавляет его в глобальную конфигурацию и обновляет все связанные карты.
+ *
+ * @param $value - Значение для поиска. Только число без единиц измерения:
+ *   - Число (например: 8, 16, 24)
+ *
+ * @return {String|Null} - Имя переменной масштаба (например: 'scale-8') или null,
+ *                        если значение не найдено в конфигурации и не кратно 8
+ *
+ * @warn Выдаёт предупреждение, если значение не найдено в конфигурации и не кратно 8
+ *
+ * @note Если значение кратно 8, но не объявлено в конфигурации, функция
+ *       автоматически создаёт новую переменную, добавляет её в глобальную карту
+ *       конфигурации и обновляет обратные карты (значение -> имя, числовой суффикс -> имя)
+ *
+ * @example
+ * _get-name-scale(8) -> 'scale-8'
+ * _get-name-scale(16) -> 'scale-16'
+ * _get-name-scale(10) -> null (и предупреждение)
+ * @example
+ * // Динамическое добавление нового значения
+ * $name: _get-name-scale(40); -> 'scale-40' (если не было в конфиге)
+ */
+@function _get-name-scale($value) {
+	$_name: map.get($_base-scales-reversed-numbers, "#{$value}");
+
+	@if $_name == null {
+		@if _is-multiple($value) {
+			$_new-name: "scale-#{$value}";
+			$_new-value: "#{$value}rem";
+			$_base-scales: map.set($_base-scales, $_new-name, $_new-value) !global;
+			$_base-scales-reversed: map.set($_base-scales-reversed, $_new-value, $_new-name) !global;
+			$_base-scales-reversed-numbers: map.set($_base-scales-reversed-numbers, $value, $_new-name) !global;
+			$_name: $_new-name;
+		} @else {
+			@warn "Значение '#{$value}' не кратно 8 и не объявлено в @config/scale.scss";
+		}
+	}
+
+	@return $_name;
+}
+
+/**
+ * Регистрирует переменную масштаба в глобальной карте переменных.
+ *
+ * Добавляет пару имя-значение в глобальную карту $variables-map-scales,
+ * если такое имя ещё не зарегистрировано. Это позволяет отслеживать,
+ * какие переменные масштаба были использованы в проекте.
+ *
+ * @param $name - Имя переменной масштаба (например: 'scale-8')
+ * @param $value - Значение переменной (например: 8px)
+ *
+ * @return {String} - Имя переменной (без изменений)
+ *
+ * @note Использует !global для модификации глобальной переменной
+ *
+ * @example
+ * _set-in-variables-map('scale-8', '1rem') -> 'scale-8'
+ */
+@function _set-in-variables-map($name, $value) {
+	$_existing: map.get($variables-map-scales, $name);
+
+	@if $_existing == null {
+		$variables-map-scales: map.set($variables-map-scales, $name, $value) !global;
+	}
+
+	@return $name;
+}
+
+/**
+ * Формирует CSS-переменную из имени переменной масштаба.
+ *
+ * Преобразует имя переменной масштаба в формат CSS-переменной
+ * с префиксом -- для использования в стилях.
+ *
+ * @param $name - Имя переменной масштаба (например: 'scale-8')
+ *
+ * @return {String} - CSS-переменная (например: 'var(--scale-8)')
+ *
+ * @example
+ * _get-css-var-scale('scale-8') -> var(--scale-8)
+ */
+@function _get-css-var-scale($name) {
+	@return css-vars.generate-css-var($name);
+}
+
+/**
+ * Проверяет, кратно ли значение базовой единице масштаба (8px).
+ *
+ * Определяет, делится ли значение на базовую единицу масштаба без остатка.
+ * Принимает только голые числа без единиц измерения.
+ * Проверка на единицы измерения уже выполнена в публичных функциях scale() и scale-value().
+ *
+ * @param $value - Значение для проверки. Только число без единиц измерения:
+ *   - Безразмерное число (например: 8, 16, 24)
+ *
+ * @return {Bool} - true, если значение кратно 8, иначе false
+ *
+ * @access private
+ *
+ * @example
+ * _is-multiple(8) -> true
+ * _is-multiple(16) -> true
+ * _is-multiple(10) -> false
+ * _is-multiple(240) -> true
+ */
+@function _is-multiple($value) {
+	$_base: $_base-scale-unit;
+	@return $value % $_base == 0;
+}
+
+/**
+ * @section Примеры использования
+ *
+ * @example
+ * @use "@core/scale";
+ *
+ * // Использование в CSS-классах
+ * .btn {
+ *   padding: scale(8, 16);
+ *   font-size: scale(16);
+ *   margin: scale(8);
+ * }
+ *
+ * @example
+ * // Использование с переменными
+ * $spacing-sm: scale(8);
+ * $spacing-md: scale(16);
+ * $spacing-lg: scale(24);
+ *
+ * .card {
+ *   padding: $spacing-md;
+ *   border-radius: scale(4);
+ * }
+ *
+ * @example
+ * // Получение числовых значений
+ * $gap: scale-value(24); // 24px
+ * $font-size: scale-value(16); // 16px
+ *
+ * .text {
+ *   font-size: $font-size;
+ *   line-height: 1.5;
+ * }
+ *
+ * @example
+ * // Комбинирование с медиа-запросами
+ * @media (min-width: 768px) {
+ *   .container {
+ *     padding: scale(16, 24, 32, 40);
+ *   }
+ * }
+ *
+ * @example
+ * // Динамическое создание значений
+ * @function custom-spacing($value) {
+ *   @if _is-multiple($value) {
+ *     @return scale($value);
+ *   }
+ *   @else {
+ *     // @error "Значение #\{$value} не кратно 8";
+ *     @error "Значение не кратно 8";
+ *   }
+ * }
+ *
+ * .element {
+ *   padding: custom-spacing(48);
+ * }
+ */

@@ -1,0 +1,15 @@
+{
+  "__comment": "Дублирует настройки алиасов из vite.config.js. Нужен так как IDE не понимает настройки vite и ругается на импорты в которых используются алиасы.",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@config/*": ["resources/scss/config/*"],
+      "@core/*": ["resources/scss/core/*"],
+      "@utils/*": ["resources/scss/utils/*"],
+      "@mixins/*": ["resources/scss/utils/mixins/*"],
+      "@colors/*": ["resources/scss/utils/tailwind-colors/*"]
+    }
+  },
+  "include": ["resources/**/*"],
+  "exclude": ["node_modules", "public"]
+}
