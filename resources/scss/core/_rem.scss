@@ -1,4 +1,13 @@
+@use '@core/api';
+
 html {
 	scroll-behavior: smooth;
 	font-size: 6.25%; // базовый размер шрифта 1px = 1rem
+}
+
+body {
+    font-family: api.font-family(api.$base-font);
+    font-size: api.scale(16);
+    line-height: api.scale(24);
+    font-weight: api.font-weight(400);
 }

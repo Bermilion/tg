@@ -7,7 +7,8 @@
       "@core/*": ["resources/scss/core/*"],
       "@utils/*": ["resources/scss/utils/*"],
       "@mixins/*": ["resources/scss/utils/mixins/*"],
-      "@colors/*": ["resources/scss/utils/tailwind-colors/*"]
+      "@colors/*": ["resources/scss/utils/tailwind-colors/*"],
+      "@ui/*": ["resources/views/site/ui/*"]
     }
   },
   "include": ["resources/**/*"],
