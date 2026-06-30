@@ -14,8 +14,7 @@
 
     </head>
     <body>
-        <h1>DEV PAGE</h1>
-        <x-site.ui.icon name="bars-solid" />
+        <x-site.partials.header />
 
         @vite('resources/js/app.js')
     </body>

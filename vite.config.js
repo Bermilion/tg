@@ -51,7 +51,8 @@ export default defineConfig({
             '@utils': resolve(__dirname, 'resources/scss/utils'),
             '@mixins': resolve(__dirname, 'resources/scss/utils/mixins'),
             '@colors': resolve(__dirname, 'resources/scss/utils/tailwind-colors'),
-            '@ui': resolve(__dirname, 'resources/views/site/ui'),
+            '@ui': resolve(__dirname, 'resources/views/components/site/ui'),
+            '@partials': resolve(__dirname, 'resources/views/components/site/partials'),
         }
     },
     server: {

@@ -8,7 +8,8 @@
       "@utils/*": ["resources/scss/utils/*"],
       "@mixins/*": ["resources/scss/utils/mixins/*"],
       "@colors/*": ["resources/scss/utils/tailwind-colors/*"],
-      "@ui/*": ["resources/views/site/ui/*"]
+      "@ui/*": ["resources/views/components/site/ui/*"],
+      "@partials/*": ["resources/views/components/site/partials/*"]
     }
   },
   "include": ["resources/**/*"],

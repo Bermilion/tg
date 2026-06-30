@@ -1,7 +1,9 @@
 @use "@core/preflight";
 @use "@core/rem";
 
-@use "@ui/index";
+@use "@ui/index" as ui;
+
+@use "@partials/index" as partials;
 
 
 // Всегда подключаем после импортов где используются единый API для всех функций в scss

@@ -1,0 +1,29 @@
+@use "@core/api";
+
+.header {
+    background-color: api.color-base(api.$content-base);
+    box-shadow: api.scale(0, 1, 4) api.color-base(api.$dark-gray, .4);
+    display: flex;
+    justify-content: space-between;
+    padding: api.scale(8, 16);
+
+    &__link {
+        align-items: center;
+        display: inline-flex;
+        flex-shrink: 0;
+        gap: 4rem;
+    }
+
+    &__logo {
+        height: api.scale(24);
+    }
+    &__tag {
+        border: api.scale(1) solid api.color-base(api.$accent);
+        border-radius: api.scale(20);
+        color: api.color-base(api.$accent);
+        font-size: api.scale(12);
+        font-weight: api.font-weight(600);
+        line-height: api.scale(12);
+        padding: api.scale(2, 4);
+    }
+}
