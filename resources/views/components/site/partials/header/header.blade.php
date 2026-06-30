@@ -4,5 +4,7 @@
         <span class="header__tag">Выборг</span>
     </a>
 
+    <x-site.ui.button.button icon:trailing="bars-solid" text="btn"/>
+
     <x-site.ui.icon name="bars-regular" />
 </header>

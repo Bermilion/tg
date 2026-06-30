@@ -1,0 +1,11 @@
+@use '@core/api';
+
+.button {
+    align-items: center;
+    display: inline-flex;
+    gap: api.scale(4);
+    background-color: api.color-base(api.$accent);
+    border-radius: api.scale(8);
+    color: api.color-content(api.$accent);
+    padding: api.scale(8, 16);
+}

@@ -1,6 +1,7 @@
 @use "@core/api";
 
 .header {
+    align-items: center;
     background-color: api.color-base(api.$content-base);
     box-shadow: api.scale(0, 1, 4) api.color-base(api.$dark-gray, .4);
     display: flex;
