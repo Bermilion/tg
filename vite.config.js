@@ -3,6 +3,7 @@ import {
 } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
+import {createSvgIconsPlugin} from "vite-plugin-svg-icons";
 import tailwindcss from "@tailwindcss/vite";
 import { resolve } from 'path';
 
@@ -22,6 +23,26 @@ export default defineConfig({
             ],
         }),
         tailwindcss(),
+        createSvgIconsPlugin({
+            iconDirs: [resolve(process.cwd(), 'resources/icons')],
+            symbolId: 'icon-[dir]-[name]',
+            svgoOptions: {
+                plugins: [
+                    {
+                        name: 'removeAttrs',
+                        params: {
+                            attrs: 'fill',
+                        },
+                    },
+                    {
+                        name: 'addAttributesToSVGElement',
+                        params: {
+                            attributes: [{fill: 'currentColor'}],
+                        },
+                    },
+                ],
+            },
+        }),
     ],
     resolve: {
         alias: {
@@ -30,6 +51,7 @@ export default defineConfig({
             '@utils': resolve(__dirname, 'resources/scss/utils'),
             '@mixins': resolve(__dirname, 'resources/scss/utils/mixins'),
             '@colors': resolve(__dirname, 'resources/scss/utils/tailwind-colors'),
+            '@ui': resolve(__dirname, 'resources/views/site/ui'),
         }
     },
     server: {
